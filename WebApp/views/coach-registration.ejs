@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Registration</title>
+  <link rel="stylesheet" href="styles/coach-registration.css">
+</head>
+
+<body>
+    <form autocomplete="off" id="form" class="sign-up-form" name="myForm" onsubmit="return doRegister(event)">
+
+        <div class="actual-form">
+          <input type="text" class="ii" name="userId" id="ruserId" hidden="true" value="" required>
+          
+          <div class="input-wrap">
+            <label>First Name</label>
+            <input name="firstName" type="text" class="input-field" autocomplete="off" required id="firstName">
+           
+          </div>
+
+          <div class="input-wrap">
+            <label>Last Name</label>
+            <input name="lastName" type="text"  minlength="10"  class="input-field" autocomplete="off" required id="lastName">
+          </div>
+
+          <div class="input-wrap">
+            <label>Email</label>
+            <input name="email" type="email" class="input-field" autocomplete="off" required id="email" >
+          </div>
+
+          
+
+          <div class="input-wrap">
+            <label>phone</label>
+            <input name="phoneNumber" type="text" class="input-field" autocomplete="off" required id="phone">
+            
+          </div>
+
+          <div class="input-wrap">
+            <label>Password</label>
+            <input name="password" type="password"  class="input-field" autocomplete="off"  id="password">
+          </div>
+
+          <input type="submit" value="Confirm" class="sign-btn" id="confirmBtn"/>
+        </div>
+    </form>
+</body>
+    <script src="js/coach-registration.js"></script>
+</html>

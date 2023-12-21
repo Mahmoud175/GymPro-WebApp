@@ -1,0 +1,55 @@
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FF7700;
+    height: 100vh;
+    margin: 0;
+  }
+
+  #formContainer {
+    width: 500px;
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 80vh; /* Set maximum height */
+  }
+
+  form{
+    background-color: #FFF6EB;
+  }
+
+  #workoutForm {
+    width: 90%;
+    padding: 20px;
+    border: 1px solid  #402E32;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  label, input, button {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .dayEntry {
+    border: 1px solid  #402E32;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .exerciseEntry {
+    border: 1px solid  #402E32;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    width: 48%; /* Adjust as needed */
+  }

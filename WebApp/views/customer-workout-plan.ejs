@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Workout Plan</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #FF7700;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #formContainer {
+      width: 500px;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+
+    form {
+      background-color: #FFF6EB;
+    }
+
+    #workoutForm {
+      width: 90%;
+      padding: 20px;
+      border: 1px solid #402E32;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label,
+    input,
+    button {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .dayEntry {
+      border: 1px solid #402E32;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .exerciseEntry {
+      border: 1px solid #402E32;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .buttonContainer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    button {
+      width: 48%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="formContainer">
+    <h1 style="color: #402E32;">Create Workout Plan</h1>
+    <form id="workoutForm" onsubmit="submission(event, '<%= userId%>')">
+      <div class="dayEntry">
+        <label for="day">Day:</label>
+        <input type="text" name="day" required>
+
+        <label for="category">Category:</label>
+        <input type="text" name="category" required>
+
+        <div class="exercisesContainer">
+          <div class="exerciseEntry">
+            <label for="exercise">Exercise:</label>
+            <input type="text" name="exercise" required>
+
+            <label for="reps">Reps:</label>
+            <input type="text" name="reps" required>
+
+            <label for="sets">Sets:</label>
+            <input type="text" name="sets" required>
+          </div>
+        </div>
+      </div>
+
+      <div id="exerciseEntries"></div>
+
+      <div class="buttonContainer">
+        <button type="button" onclick="addExercise()">Add Exercise</button>
+        <button type="button" onclick="addDay()">Add Day</button>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    let exercisesContainers = [];
+
+function addDay() {
+  const form = document.getElementById('workoutForm');
+  const dayEntry = document.querySelector('.dayEntry').cloneNode(true);
+  dayEntry.querySelector('input[name="day"]').value = ''; // Clear day input
+  dayEntry.querySelector('input[name="category"]').value = ''; // Clear category input
+
+  const exercisesContainer = dayEntry.querySelector('.exercisesContainer');
+  exercisesContainer.innerHTML = ''; // Clear exercises container
+
+  form.insertBefore(dayEntry, form.lastElementChild.previousElementSibling);
+
+  // Keep track of exercisesContainer for each day
+  exercisesContainers.push(exercisesContainer);
+}
+
+function addExercise() {
+  const workoutForm = document.getElementById('workoutForm');
+    var lastExercisesContainer;
+  // Find the exercisesContainer of the last added day
+  if(exercisesContainers.length === 0){
+    const dayEntry = document.querySelector('.dayEntry');
+    lastExercisesContainer = dayEntry.querySelector('.exercisesContainer');
+  }
+  else{
+  lastExercisesContainer = exercisesContainers[exercisesContainers.length - 1];
+  }
+
+  if (lastExercisesContainer) {
+    const exerciseEntry = document.querySelector('.exerciseEntry').cloneNode(true);
+    exerciseEntry.querySelector('input[name="exercise"]').value = ''; // Clear exercise input
+    exerciseEntry.querySelector('input[name="reps"]').value = ''; // Clear reps input
+    exerciseEntry.querySelector('input[name="sets"]').value = ''; // Clear sets input
+
+    lastExercisesContainer.appendChild(exerciseEntry);
+  }
+}
+
+
+
+
+
+    function submission(event,userId){
+        event.preventDefault();
+      const days = document.querySelectorAll('.dayEntry');
+      const workoutPlan = [];
+
+      days.forEach(day => {
+        const exercises = day.querySelectorAll('.exerciseEntry');
+        const dayObject = {
+          day: day.querySelector('input[name="day"]').value,
+          category: day.querySelector('input[name="category"]').value,
+          exercises: []
+        };
+
+        exercises.forEach(exercise => {
+          const exerciseObject = {
+            exercise: exercise.querySelector('input[name="exercise"]').value,
+            reps: exercise.querySelector('input[name="reps"]').value,
+            sets: exercise.querySelector('input[name="sets"]').value,
+          };
+          dayObject.exercises.push(exerciseObject);
+        });
+
+        workoutPlan.push(dayObject);
+      });
+
+      console.log('Workout Plan Submitted:', workoutPlan);
+      sendPlan(workoutPlan , userId);
+      // Perform additional actions with the workout plan, e.g., send it to the server
+    }
+
+
+    function sendPlan(Plan ,userId){
+        const workoutPlan = Plan.map(item => {
+            return {
+                day: item.day,
+                category: item.category,
+                exercises: item.exercises.map(exercise => ({
+                exercise: exercise.exercise,
+                reps: exercise.reps,
+                sets: exercise.sets
+                }))
+            };
+            });
+
+            endpoint = '/customer/createWorkoutPlan';
+
+      fetch(endpoint, {
+          method: "post",
+          body: JSON.stringify({
+            userId: userId,
+            workoutPlan : workoutPlan,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error: " + response.status);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.message) {
+              alert(data.message);
+            } 
+            return data
+          }).then((data)=>{
+            if (data.redirect) {
+              window.location.href = data.redirect;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+        console.log(workoutPlan);
+    }
+  </script>
+
+</body>
+
+</html>

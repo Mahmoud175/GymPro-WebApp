@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f70;
+      height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      width: 300px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      background-color: #FFF6EB;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center; /* Center align the content within the form */
+    }
+
+    h2 {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input,select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #402E32;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #f70;
+    }
+  </style>
+  <title>Meeting Form</title>
+</head>
+<body>
+
+  <form id="meetingForm" method="post" onsubmit="submitForm(event)">
+    <h2>Schedule Session</h2>
+
+    <label for="meetingDate">Meeting Date:</label>
+    <input type="date" id="meetingDate" name="meetingDate" required>
+
+    <label for="meetingTime">Meeting Time:</label>
+    <input type="time" id="meetingTime" name="meetingTime" required>
+
+    <label for="meetingTime">Meeting Link:</label>
+    <input type="text" id="meetingL" name="meetingL" required>
+
+    <label for="Customer">For:</label>
+    <select id="meetingLink" name="Customer" required>
+        <% assignedCustomers.forEach(customer => { %>
+            <% if(JSON.parse(customer.membershipData).nextMeeting.meetingDateTime.meetingDate === null) {%>
+            <option id="<%= customer._id %>" value="<%= customer.userId %>">
+                <%= customer.name.firstName %> <%= customer.name.lastName %>
+            </option>
+          <% } %>
+
+        <% }); %>
+      </select>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    function submitForm(event) {
+      event.preventDefault(); // Prevent the default form submission behavior
+
+      // Collect form values
+      const meetingDate = document.getElementById('meetingDate').value;
+      const meetingTime = document.getElementById('meetingTime').value;
+      const meetingLink = document.getElementById('meetingL').value;
+
+      const selectedCustomer = document.getElementById('meetingLink').value;
+
+      endpoint = '/customer/schedule-session';
+
+      fetch(endpoint, {
+          method: "post",
+          body: JSON.stringify({
+            userId: selectedCustomer,
+            meetingDate: meetingDate,
+            meetingtime: meetingTime,
+            meetingLink: meetingLink,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error: " + response.status);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.message) {
+              alert(data.message);
+            } 
+            return data
+          }).then((data)=>{
+            if (data.redirect) {
+              window.location.href = data.redirect;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+
+    }
+  </script>
+
+</body>
+</html>

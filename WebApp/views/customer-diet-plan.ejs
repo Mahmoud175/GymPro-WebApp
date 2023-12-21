@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diet Plan Form</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #FF7700;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #dietForm {
+      width: 220px;
+      height: 500px; /* Set a fixed height for the form */
+      overflow-y: auto; /* Enable vertical scrolling */
+      background-color: #FFF6EB;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label, input, button {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .mealEntry {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .buttonContainer {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      width: 48%;
+    }
+  </style>
+</head>
+<body>
+    
+  <div id="dietForm">
+    <h1>Diet Plan</h1>
+    <form id="mealForm" onsubmit="submission(event, '<%= userId%>')">
+        <div id="mealEntries">
+      <div class="mealEntry">
+        <label for="meal">Meal:</label>
+        <input type="text" name="meal" required>
+
+        <label for="foodItems">Food Items:</label>
+        <input type="text" name="foodItems" required>
+
+        <label for="amount">Amount:</label>
+        <input type="text" name="amount" required>
+      </div>
+
+      </div>
+
+      <div class="buttonContainer">
+        <button type="button" onclick="addMeal()">Add Meal</button>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function addMeal() {
+  const mealForm = document.getElementById('mealForm');
+  const mealEntries = document.getElementById('mealEntries');
+
+  const mealEntry = document.querySelector('.mealEntry').cloneNode(true);
+  
+  // Clear input values in the cloned entry
+  mealEntry.querySelectorAll('input').forEach(input => input.value = '');
+
+  // Append the cloned mealEntry to mealEntries
+  mealEntries.appendChild(mealEntry);
+}
+
+
+
+    function submission(event, userId) {
+  event.preventDefault();
+
+  const meals = document.querySelectorAll('.mealEntry');
+  const dietPlan = [];
+
+  // Check if there are any meals
+  if (meals && meals.length > 0) {
+    meals.forEach(meal => {
+      const mealObject = {
+        meal: meal.querySelector('input[name="meal"]').value,
+        foodItems: meal.querySelector('input[name="foodItems"]').value,
+        amount: meal.querySelector('input[name="amount"]').value,
+      };
+
+      dietPlan.push(mealObject);
+    });
+  }
+
+  console.log('Diet Plan Submitted:', dietPlan);
+
+  // Perform additional actions with the diet plan, e.g., send it to the server
+  sendPlan(dietPlan, userId);
+}
+
+
+    function sendPlan(Plan, userId) {
+  const dietPlan = Plan.map(item => {
+    return {
+      meal: item.meal,
+      foodItems: item.foodItems,
+      amount: item.amount,
+    };
+  });
+
+  const endpoint = '/customer/createDietPlan';
+
+  fetch(endpoint, {
+    method: "post",
+    body: JSON.stringify({
+      userId: userId,
+      dietPlan: dietPlan,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error: " + response.status);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.message) {
+        alert(data.message);
+      }
+      return data;
+    })
+    .then((data) => {
+      if (data.redirect) {
+        window.location.href = data.redirect;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  console.log(dietPlan); // Corrected variable name
+}
+
+  </script>
+
+</body>
+</html>
